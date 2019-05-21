@@ -3,10 +3,11 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Button from 'react-bootstrap/Button';
 import GridLayout from 'react-grid-layout';
 import { connect } from 'react-redux';
 import TestComponent from './components/test';
-import { addWidget, layoutChange } from './dashboard.ducks';
+import { addWidget, removeWidget, layoutChange } from './dashboard.ducks';
 
 const Tmp = () => <div> Tmp component </div>;
 
@@ -18,6 +19,8 @@ const widgetTypes = [
 const MyFirstGrid = ({ dashboard, dispatch }) => {
 	const layoutChangeDispatch = newLayout =>
 		dispatch(layoutChange( newLayout ));
+	const removeWidgetDispatch = i =>
+		dispatch(removeWidget( i ));
 
 	return <GridLayout
 		className="layout"
@@ -29,7 +32,10 @@ const MyFirstGrid = ({ dashboard, dispatch }) => {
 		>
 	{ dashboard.map( ({ i, id }) => {
 		const Component = widgetTypes.find( widget => widget.id === id ).component;
-		return <div key={i}><Component /></div>;
+		return <div key={i}>
+			<Button onClick={() => removeWidgetDispatch(i)}> Close </Button>
+			<Component />
+		</div>;
 	}) }
 	</GridLayout>;
 };
