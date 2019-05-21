@@ -6,16 +6,31 @@ import Col from 'react-bootstrap/Col'
 import GridLayout from 'react-grid-layout';
 import { connect } from 'react-redux';
 import TestComponent from './components/test';
-import { addWidget } from './dashboard.ducks';
+import { addWidget, layoutChange } from './dashboard.ducks';
 
-const MyFirstGrid = ({ dashboard }) => {
-	const layout = dashboard;
+const Tmp = () => <div> Tmp component </div>;
 
-	return <GridLayout className="layout" layout={layout} cols={12} rowHeight={30} width={1200}>
-		<div key="a">a</div>
-		<div key="b">b</div>
-		<div key="c">c</div>
-		<div key="d"><TestComponent /></div>
+const widgetTypes = [
+	{ name: 'Github Notifications', id: 'github-notifications', component: Tmp },
+	{ name: 'TestComponent', id: 'test-component', component: TestComponent },
+];
+
+const MyFirstGrid = ({ dashboard, dispatch }) => {
+	const layoutChangeDispatch = newLayout =>
+		dispatch(layoutChange( newLayout ));
+
+	return <GridLayout
+		className="layout"
+		layout={dashboard}
+		cols={12}
+		rowHeight={30}
+		width={1200}
+		onLayoutChange={layoutChangeDispatch}
+		>
+	{ dashboard.map( ({ i, id }) => {
+		const Component = widgetTypes.find( widget => widget.id === id ).component;
+		return <div key={i}><Component /></div>;
+	}) }
 	</GridLayout>;
 };
 
@@ -24,8 +39,8 @@ const Grid = connect(
 )(MyFirstGrid);
 
 const App = ({ dispatch }) => {
-	const addWidgetGithubNotification = () => {
-		dispatch( addWidget() );
+	const addWidgetDispatch = ({ id, component }) => {
+		dispatch( addWidget(id, component) );
 	};
 
 	return <Container>
@@ -40,7 +55,9 @@ const App = ({ dispatch }) => {
 					</Dropdown.Toggle>
 
 					<Dropdown.Menu>
-						<Dropdown.Item onClick={addWidgetGithubNotification}>Github Notifications</Dropdown.Item>
+					{ widgetTypes.map( widget =>
+						<Dropdown.Item onClick={() => addWidgetDispatch(widget)} key={widget.id}>{ widget.name }</Dropdown.Item>
+					)}
 					</Dropdown.Menu>
 				</Dropdown>
 			</Col>
